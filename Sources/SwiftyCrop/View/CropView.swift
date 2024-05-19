@@ -9,6 +9,7 @@ struct CropView: View {
     private let configuration: SwiftyCropConfiguration
     private let onComplete: (UIImage?) -> Void
     private let localizableTableName: String
+    private let navBarIconColor = Color(hex: "#dfe4ea")
 
     init(
         image: UIImage,
@@ -120,6 +121,14 @@ struct CropView: View {
                     isPresented = false
                 } label: {
                     Text("cancel_button", tableName: localizableTableName, bundle: .module)
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.black)
+                    .foregroundColor(navBarIconColor)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 8)
+                    .background(Color.white)
+                    .clipShape(Capsule(style: .continuous))
                 }
                 .foregroundColor(.white)
 
@@ -130,6 +139,13 @@ struct CropView: View {
                     isPresented = false
                 } label: {
                     Text("save_button", tableName: localizableTableName, bundle: .module)
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.black)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 14)
+                        .background(Color.yellow)
+                        .clipShape(Capsule(style: .continuous))
                 }
                 .foregroundColor(.white)
             }
@@ -170,5 +186,39 @@ struct CropView: View {
                 }
             }
         }
+    }
+}
+
+private extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int = UInt64()
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (r, g, b) = ((int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (r, g, b) = (int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (r, g, b) = (int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (r, g, b) = (1, 1, 0)  // invalid format
+        }
+        self.init(
+            .displayP3,
+            red: Double(r) / 255.0,
+            green: Double(g) / 255.0,
+            blue: Double(b) / 255.0,
+            opacity: Double(1)
+        )
+    }
+    
+    static var controlAccentColor: Color {
+#if canImport(UIKit)
+        Color.accentColor
+#elseif canImport(AppKit)
+        Color(nsColor: .controlAccentColor)
+#endif
     }
 }
