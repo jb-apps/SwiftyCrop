@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct CropView: View {
-    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: CropViewModel
 
+    @Binding var isPresented: Bool
     private let image: UIImage
     private let maskShape: MaskShape
     private let configuration: SwiftyCropConfiguration
@@ -14,11 +14,13 @@ struct CropView: View {
         image: UIImage,
         maskShape: MaskShape,
         configuration: SwiftyCropConfiguration,
+        isPresented: Binding<Bool>,
         onComplete: @escaping (UIImage?) -> Void
     ) {
         self.image = image
         self.maskShape = maskShape
         self.configuration = configuration
+        self._isPresented = isPresented
         self.onComplete = onComplete
         _viewModel = StateObject(
             wrappedValue: CropViewModel(
@@ -115,7 +117,7 @@ struct CropView: View {
 
             HStack {
                 Button {
-                    dismiss()
+                    isPresented = false
                 } label: {
                     Text("cancel_button", tableName: localizableTableName, bundle: .module)
                 }
@@ -125,7 +127,7 @@ struct CropView: View {
 
                 Button {
                     onComplete(cropImage())
-                    dismiss()
+                    isPresented = false
                 } label: {
                     Text("save_button", tableName: localizableTableName, bundle: .module)
                 }
